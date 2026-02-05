@@ -1,25 +1,56 @@
-import './globals.css';
+// [Task]: T-008, [From]: specs/002-task-ui-frontend/spec.md#Requirements
+// Root layout component with metadata and providers
 
-export default function RootLayout({
-  children,
-}: {
+import type { Metadata, Viewport } from 'next';
+import '@/globals.css';
+import { Providers } from '@/providers/Providers';
+
+export const metadata: Metadata = {
+  title: 'Evolution of Todo - Task Management',
+  description: 'A modern task management application built with Next.js',
+  keywords: ['tasks', 'todo', 'productivity', 'management'],
+  authors: [{ name: 'Evolution of Todo Team' }],
+  robots: 'index, follow',
+  openGraph: {
+    title: 'Evolution of Todo - Task Management',
+    description: 'A modern task management application',
+    type: 'website',
+  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+};
+
+interface RootLayoutProps {
   children: React.ReactNode;
-}) {
-  return (
-    <html lang="en">
-      <body>
-        <div className="relative min-h-screen">
-          {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 -z-10"></div>
-          {/* Decorative elements */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-20">
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-pink-500/5 rounded-full blur-3xl"></div>
-            <div className="absolute top-1/3 right-1/3 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl"></div>
-          </div>
+}
 
-          {children}
-        </div>
+/**
+ * Root Layout Component
+ * Provides document structure, metadata, and global providers
+ * [Task]: T-008, [From]: specs/002-task-ui-frontend/spec.md#FR-019
+ */
+export default function RootLayout({ children }: RootLayoutProps): React.ReactNode {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="theme-color" content="#0ea5e9" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <base href="/" />
+      </head>
+      <body>
+        {/* Wrap with Providers for auth and React Query */}
+        <Providers>
+          {/* Main content */}
+          <main className="min-h-screen bg-white">{children}</main>
+
+          {/* Toast container for notifications */}
+          <div id="toast-container" className="fixed bottom-4 right-4 z-50 space-y-2" />
+        </Providers>
       </body>
     </html>
   );

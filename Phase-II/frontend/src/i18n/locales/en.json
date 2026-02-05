@@ -1,0 +1,171 @@
+{
+  "hero": {
+    "headline": "Manage Your Tasks Effortlessly",
+    "subheadline": "Simple, powerful task management for students, freelancers, and teams. Free to start. No credit card required.",
+    "cta": "Get Started Free",
+    "trustline": "No credit card required • Start managing today"
+  },
+  "problem": {
+    "title": "The Challenge with Task Management",
+    "description": "Most of us struggle with staying organized. Here's what you face:",
+    "items": [
+      {
+        "title": "Forgotten Deadlines",
+        "description": "Tasks slip through the cracks, and deadlines are missed. You're always playing catch-up."
+      },
+      {
+        "title": "Scattered Tasks",
+        "description": "Tasks are scattered across notes, emails, and random apps. No central place to see what matters."
+      },
+      {
+        "title": "Unclear Priorities",
+        "description": "Without clear priorities, everything feels urgent. You waste time on low-impact work."
+      },
+      {
+        "title": "Wasted Mental Energy",
+        "description": "Managing tasks manually drains your focus. You're spending energy on organization, not on getting things done."
+      }
+    ]
+  },
+  "solution": {
+    "title": "The Solution: Clean Task Management",
+    "description": "Evolution of Todo gives you a simple, powerful dashboard to take control.",
+    "highlights": [
+      {
+        "title": "Clean Dashboard",
+        "description": "See all your tasks at a glance. No clutter, no confusion. Just what matters."
+      },
+      {
+        "title": "Easy Task Creation",
+        "description": "Add tasks in seconds. Set due dates, priorities, and tags without friction."
+      },
+      {
+        "title": "Instant Clarity",
+        "description": "Organize by priority, due date, or custom tags. Find what you need in one click."
+      }
+    ]
+  },
+  "features": {
+    "title": "Powerful Features Built for You",
+    "description": "Everything you need to stay organized and productive.",
+    "items": [
+      {
+        "title": "Quick Task Creation",
+        "description": "Add tasks with due dates, priorities, and tags. Get organized in seconds."
+      },
+      {
+        "title": "Smart Due Dates",
+        "description": "Never miss a deadline. Set due dates and get reminders when tasks are coming up."
+      },
+      {
+        "title": "Priority Levels",
+        "description": "Mark tasks as High, Medium, or Low. Focus on what matters most."
+      },
+      {
+        "title": "Tags & Filtering",
+        "description": "Organize with custom tags. Filter and search to find exactly what you need."
+      },
+      {
+        "title": "Multilingual Support",
+        "description": "Use Evolution of Todo in English, Urdu, or Roman Urdu. Your language, your choice."
+      },
+      {
+        "title": "AI-Ready Architecture",
+        "description": "Built for the future. AI-powered task suggestions coming soon."
+      }
+    ]
+  },
+  "howItWorks": {
+    "title": "How It Works in 3 Simple Steps",
+    "description": "Get started in minutes. No complicated setup.",
+    "steps": [
+      {
+        "title": "Sign Up Free",
+        "description": "Create your account in seconds. No credit card, no commitment."
+      },
+      {
+        "title": "Create Your Tasks",
+        "description": "Add tasks, set priorities and due dates. Organize with tags."
+      },
+      {
+        "title": "Track & Complete",
+        "description": "See your progress, mark tasks as done, and celebrate wins."
+      }
+    ]
+  },
+  "preview": {
+    "title": "See Evolution of Todo in Action",
+    "description": "Simple, intuitive interface designed for productivity.",
+    "screenshots": [
+      {
+        "title": "Dashboard",
+        "description": "Clean, organized task overview"
+      },
+      {
+        "title": "Task List",
+        "description": "All your tasks in one place"
+      },
+      {
+        "title": "Create Task Modal",
+        "description": "Quick and easy task creation"
+      }
+    ]
+  },
+  "targetAudience": {
+    "title": "Who Is This For?",
+    "description": "Evolution of Todo is designed for anyone who wants to stay organized and productive.",
+    "personas": [
+      {
+        "title": "Students",
+        "description": "Juggling assignments, projects, and deadlines. Stay on top of your coursework."
+      },
+      {
+        "title": "Freelancers",
+        "description": "Managing multiple clients and projects. Never miss a deadline or deliverable."
+      },
+      {
+        "title": "Developers",
+        "description": "Track bugs, features, and tasks. Built with developers in mind."
+      },
+      {
+        "title": "Small Teams",
+        "description": "Collaborate and stay aligned. Keep everyone on the same page."
+      }
+    ]
+  },
+  "pricing": {
+    "title": "Always Free to Start",
+    "description": "Use Evolution of Todo completely free. No hidden charges. No surprise upgrades.",
+    "highlight": "Free. Forever. For the basics.",
+    "freeFeatures": [
+      "Unlimited tasks",
+      "All core features",
+      "Multilingual support",
+      "No credit card required",
+      "No time limits"
+    ],
+    "cta": "Start managing today"
+  },
+  "finalCta": {
+    "headline": "Ready to Take Control?",
+    "description": "Stop wasting time on organization. Start focusing on what matters.",
+    "cta": "Start Managing Tasks Now",
+    "trustline": "Free account. No credit card. Cancel anytime."
+  },
+  "footer": {
+    "appName": "Evolution of Todo",
+    "copyright": "© 2026 Evolution of Todo. All rights reserved.",
+    "links": {
+      "signUp": "Sign Up",
+      "logIn": "Log In",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "github": "GitHub",
+      "contact": "Contact"
+    }
+  },
+  "header": {
+    "signUp": "Sign Up",
+    "logIn": "Log In"
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "hero": {
+    "headline": "Apne Kaam Ko Aasani Se Sambhaalay",
+    "subheadline": "Sada aur taaqatwar kaam ka nizam sikhne waloun, free lancers aur teams ke liye. Mukammal taur pe muft. Credit card ki zaroorat nahi.",
+    "cta": "Aaj Hi Shuroo Karain",
+    "trustline": "Credit card ki zaroorat nahi • Aaj hi shuroo karain"
+  },
+  "problem": {
+    "title": "Kaam Ko Munazzam Rakhne Mein Mushkil",
+    "description": "Aksar hum munazzam rehne mein mushkil mehsoos karte hain. Ye woh masail hain jo hum se ro bru hain:",
+    "items": [
+      {
+        "title": "Farmoosh Shuda Sur Muddat",
+        "description": "Kaam ghayib ho jate hain aur sur muddat khatam ho jati hai. Aap hamesha piche rehte hain."
+      },
+      {
+        "title": "Muntashar Kaam",
+        "description": "Kaam notes, e-mails aur alag alag apps mein hote hain. Koi markazee jagah nahi."
+      },
+      {
+        "title": "Ghair Wazi Tarjeehat",
+        "description": "Tarjeehat ke bagher, sab kuch aham lagta hai. Aap ghair aham kaam par waqt zaai karte hain."
+      },
+      {
+        "title": "Dimagi Tawanai Ka Zayaa",
+        "description": "Kaam ko dastee tareeqe se sambhalna aapki tawajjuh ko khatam kar deta hai."
+      }
+    ]
+  },
+  "solution": {
+    "title": "Hal: Saf Aur Sada Kaam Ka Nizam",
+    "description": "Evolution of Todo aapko ek sada aur taaqatwar dashboard deta hai.",
+    "highlights": [
+      {
+        "title": "Saf Dashboard",
+        "description": "Apne tamam kaam ek nazar mein dekhain. Koi afratafri nahi."
+      },
+      {
+        "title": "Aasan Kaam Ki Takhleeq",
+        "description": "Seconds mein kaam shaamil karain. Sur muddat, tarjeehat aur tags set karain."
+      },
+      {
+        "title": "Fori Wazahat",
+        "description": "Tarjeehat, sur muddat ya tags ke lihaz se munazzam karain."
+      }
+    ]
+  },
+  "features": {
+    "title": "Taaqatwar Khususiyat Aapke Liye",
+    "description": "Munazzam aur productive rehne ke liye sab kuch.",
+    "items": [
+      {
+        "title": "Fori Kaam Ki Takhleeq",
+        "description": "Tarjeehat aur sur muddat ke saath kaam shaamil karain."
+      },
+      {
+        "title": "Zehan Dar Sur Muddat",
+        "description": "Sur muddat khatam hone se pehle yaad dihani hasil karain."
+      },
+      {
+        "title": "Tarjeehat Ki Satehain",
+        "description": "Kaam ko aham, darmiani ya kam tarjeehat dain."
+      },
+      {
+        "title": "Tags Aur Filtering",
+        "description": "Apne tags se munazzam karain. Talash karain."
+      },
+      {
+        "title": "Kesir Lisani Muawinaat",
+        "description": "English, Urdu ya Roman Urdu mein istemal karain."
+      },
+      {
+        "title": "AI Ke Liye Tayar",
+        "description": "Mustaqbil ke liye banaya gaya hai. AI khususiyat jald aa rahi hain."
+      }
+    ]
+  },
+  "howItWorks": {
+    "title": "Teen Sada Aqdamat Mein Kaise Kaam Karta Hai",
+    "description": "Minton mein shuroo karain.",
+    "steps": [
+      {
+        "title": "Muft Account Banain",
+        "description": "Seconds mein apna account banain."
+      },
+      {
+        "title": "Apne Kaam Shaamil Karain",
+        "description": "Kaam shaamil karain, tarjeehat aur sur muddat muqarrar karain."
+      },
+      {
+        "title": "Track Aur Mukammal Karain",
+        "description": "Apni taraqqi dekhain, kaam mukammal karain."
+      }
+    ]
+  },
+  "preview": {
+    "title": "Evolution of Todo Ko Amali Dekhain",
+    "description": "Sulahiyat Ke Liye Design Kiya Gaya Sada Interface.",
+    "screenshots": [
+      {
+        "title": "Dashboard",
+        "description": "Saf, Munazzam Kaam Ka Jaza"
+      },
+      {
+        "title": "Kaam Ki Fehrist",
+        "description": "Aapke Tamam Kaam Ek Jagah"
+      },
+      {
+        "title": "Kaam Banane Ki Window",
+        "description": "Tayz Aur Aasan Kaam Ki Takhleeq"
+      }
+    ]
+  },
+  "targetAudience": {
+    "title": "Ye Kaun Ke Liye Hai?",
+    "description": "Evolution of Todo har us shakhs ke liye hai jo munazzam rehna chahta hai.",
+    "personas": [
+      {
+        "title": "Talib-e-Ilm",
+        "description": "Tayyin kaam, projects aur sur muddat. Apni padhai munazzam rakhain."
+      },
+      {
+        "title": "Free Lancer",
+        "description": "Mutaaddad clients aur projects. Kabhi sur muddat na chhod'ain."
+      },
+      {
+        "title": "Developer",
+        "description": "Kharaabiyon, khususiyat aur kamon ko track karain."
+      },
+      {
+        "title": "Chhoti Team",
+        "description": "Taawun karain. Her koi ek safa par rahe."
+      }
+    ]
+  },
+  "pricing": {
+    "title": "Hamesha Muft Shuroo Karain",
+    "description": "Mukammal taur pe muft istemal karain. Koi poshida charge nahi.",
+    "highlight": "Muft. Hamesha. Bunyadi khususiyat ke liye.",
+    "freeFeatures": [
+      "Lamahdud Kaam",
+      "Tamam Bunyadi Khususiyat",
+      "Kesir Lisani Muawinaat",
+      "Credit Card Ki Zaroorat Nahi",
+      "Koi Waqat Ki Had Nahi"
+    ],
+    "cta": "Aaj Hi Shuroo Karain"
+  },
+  "finalCta": {
+    "headline": "Kontrolmein Aane Ke Liye Tayar Hain?",
+    "description": "Munazzam Karne Mein Waqat Zaai Karna Band Karain. Aham Chizon Par Tawajjuh Dain.",
+    "cta": "Ab Kaam Sambhalna Shuroo Karain",
+    "trustline": "Muft Account. Credit Card Nahi. Jab Chahain Mansukh Karain."
+  },
+  "footer": {
+    "appName": "Evolution of Todo",
+    "copyright": "© 2026 Evolution of Todo. Tamam Huqooq Mehfooz Hain.",
+    "links": {
+      "signUp": "Sign Up Karain",
+      "logIn": "Log In Karain",
+      "privacyPolicy": "Niji Palicy",
+      "termsOfService": "Khadmat Ki Sharaeat",
+      "github": "Git Hub",
+      "contact": "Raabta"
+    }
+  },
+  "header": {
+    "signUp": "Sign Up Karain",
+    "logIn": "Log In Karain"
+  }
+}
