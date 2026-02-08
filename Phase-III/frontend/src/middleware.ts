@@ -21,10 +21,14 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest): NextResponse | undefined {
   const pathname = request.nextUrl.pathname;
 
-  // Routes that don't require authentication
+  // Extract locale from pathname (e.g., /en/auth/login -> en)
+  const localeMatch = pathname.match(/^\/([a-z]{2}(?:-[a-z]+)?)/);
+  const locale = localeMatch ? localeMatch[1] : 'en';
+
+  // Routes that don't require authentication (relative to locale)
   const publicRoutes = ['/auth/login', '/auth/signup', '/'];
 
-  // Routes that require authentication
+  // Routes that require authentication (relative to locale)
   const protectedRoutes = ['/tasks'];
 
   // Routes that should redirect authenticated users away (auth pages)
@@ -36,18 +40,21 @@ export function middleware(request: NextRequest): NextResponse | undefined {
   const authHeader = request.headers.get('authorization');
   const hasAuthHeader = !!authHeader;
 
+  // Get the path relative to the locale (remove /{locale} prefix)
+  const pathWithoutLocale = pathname.replace(new RegExp(`^/${locale}`), '') || '/';
+
   // Allow public routes without checking auth
-  if (publicRoutes.includes(pathname)) {
+  if (publicRoutes.includes(pathWithoutLocale)) {
     // If user appears to be authenticated and trying to access auth pages, redirect to tasks
-    if (hasAuthHeader && authRoutes.includes(pathname)) {
-      return NextResponse.redirect(new URL('/tasks', request.url));
+    if (hasAuthHeader && authRoutes.includes(pathWithoutLocale)) {
+      return NextResponse.redirect(new URL(`/${locale}/tasks`, request.url));
     }
     return undefined;
   }
 
   // Protect authenticated routes by checking Authorization header
   // This is a soft check - the real validation happens on API calls via apiClient
-  if (protectedRoutes.some((route) => pathname.startsWith(route))) {
+  if (protectedRoutes.some((route) => pathWithoutLocale.startsWith(route))) {
     // If no auth header and not on a public route, client will handle redirect via useAuth
     // Middleware cannot block here since localStorage is not accessible in server context
     // The client-side useAuth hook will check localStorage and redirect if needed
