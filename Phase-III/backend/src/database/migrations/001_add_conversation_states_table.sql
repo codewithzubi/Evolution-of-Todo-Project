@@ -11,8 +11,8 @@ CREATE TABLE IF NOT EXISTS conversation_states (
     updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_conversation_states_conversation_user 
+CREATE INDEX IF NOT EXISTS idx_conversation_states_conversation_user 
 ON conversation_states(conversation_id, user_id);
 
-CREATE INDEX idx_conversation_states_intent_mode 
+CREATE INDEX IF NOT EXISTS idx_conversation_states_intent_mode 
 ON conversation_states(intent_mode);
