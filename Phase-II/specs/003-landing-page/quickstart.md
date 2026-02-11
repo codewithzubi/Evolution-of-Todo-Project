@@ -1,554 +1,359 @@
-# Quick Start Guide: Landing Page Development
+# Quickstart Guide: Public Landing Page Testing
 
-**Feature**: Public Landing Page (003-landing-page)
-**Path**: `frontend/src/app/(landing)/`
-**Tech Stack**: Next.js 16+, React 18, TypeScript, Tailwind CSS, next-intl
-**Duration**: Estimated 15-20 developer days (5 weeks)
-
----
+**Feature**: 003-landing-page
+**Date**: 2026-02-09
+**Purpose**: Test scenarios and acceptance criteria for landing page implementation
 
 ## Prerequisites
 
-- **Node.js**: v18+ (same as existing project)
-- **Next.js**: 16.1+ (already in project)
-- **Git**: Cloned `003-landing-page` branch from main
-- **IDE**: VS Code or similar with TypeScript support
-- **Package Manager**: npm or yarn (same as project)
+- Frontend development server running (`npm run dev` in frontend/)
+- Modern browser (Chrome, Firefox, Safari, or Edge)
+- Responsive design testing tools (browser DevTools or physical devices)
+
+## Test Scenarios
+
+### Scenario 1: Hero Section Loads Correctly
+
+**User Story**: View Hero Section and Understand Value Proposition (US1)
+
+**Test Steps**:
+1. Navigate to `http://localhost:3000/`
+2. Verify page loads in under 2 seconds
+3. Observe hero section above the fold (no scrolling required)
+
+**Expected Results**:
+- ✅ Large headline visible (48-72px font size)
+- ✅ Subheadline explaining value proposition visible
+- ✅ Primary CTA button ("Get Started" or "Sign Up Free") visible and prominent
+- ✅ Phone mockup visible on right side (desktop) or below headline (mobile)
+- ✅ Dark gradient background with subtle animations (fade-in effects)
+- ✅ Phone mockup shows dashboard interface with sample tasks
+
+**Acceptance Criteria**:
+- Hero section occupies full viewport height on desktop
+- All text is readable with sufficient contrast (WCAG AA)
+- CTA button has minimum 44x44px touch target on mobile
+- Phone mockup displays task cards with checkboxes, titles, and status badges
 
 ---
 
-## Environment Setup
+### Scenario 2: Phone Mockup Displays Dashboard Preview
 
-### 1. Branch & Dependencies
+**User Story**: View Hero Section and Understand Value Proposition (US1)
 
-```bash
-# Switch to feature branch
-cd /mnt/c/Users/Zubair\ Ahmed/Desktop/Phase2
-git checkout 003-landing-page
+**Test Steps**:
+1. Navigate to landing page
+2. Locate phone mockup in hero section
+3. Examine mockup content
 
-# Install any new dependencies (next-intl)
-cd frontend
-npm install next-intl
+**Expected Results**:
+- ✅ Realistic device frame (iPhone-style with rounded corners and notch)
+- ✅ Dashboard interface visible inside device frame
+- ✅ Sample tasks displayed with checkboxes, titles, and status badges
+- ✅ Sidebar with filters visible (All Tasks, Pending, Completed)
+- ✅ Proper shadows and depth on device frame
+- ✅ Mockup scales responsively on different screen sizes
 
-# Verify Next.js version
-npm list next
-# Output: next@16.1.6 (or higher)
-```
-
-### 2. Directory Structure
-
-```bash
-# Create landing-specific directories
-mkdir -p src/app/\(landing\)
-mkdir -p src/components/landing
-mkdir -p src/i18n/locales
-mkdir -p src/hooks
-mkdir -p src/types
-mkdir -p public/images/{hero-bg,feature-icons,app-screenshots,illustrations}
-mkdir -p tests/landing/{e2e,component,unit}
-```
-
-### 3. Environment Variables
-
-No new environment variables required for landing page. Existing `NEXT_PUBLIC_*` variables should be used.
+**Acceptance Criteria**:
+- Phone mockup is positioned on right side on desktop (>1024px)
+- Phone mockup is below headline on mobile (<768px)
+- Mockup maintains aspect ratio across all breakpoints
+- Image loads with priority (no delayed appearance)
 
 ---
 
-## Project File Structure
+### Scenario 3: Features Section Displays Correctly
 
-```
-frontend/
-├── src/
-│   ├── app/
-│   │   ├── (landing)/
-│   │   │   ├── page.tsx              # Main landing page
-│   │   │   ├── layout.tsx            # Landing layout (header, footer)
-│   │   │   ├── metadata.ts           # SEO metadata
-│   │   │   └── globals.css           # Landing-specific styles (if needed)
-│   │   ├── layout.tsx                # Root layout
-│   │   └── ... (existing routes)
-│   ├── components/
-│   │   ├── landing/
-│   │   │   ├── HeroSection.tsx
-│   │   │   ├── ProblemSection.tsx
-│   │   │   ├── SolutionSection.tsx
-│   │   │   ├── FeaturesSection.tsx
-│   │   │   ├── HowItWorksSection.tsx
-│   │   │   ├── PreviewSection.tsx
-│   │   │   ├── TargetAudienceSection.tsx
-│   │   │   ├── PricingSection.tsx
-│   │   │   ├── FinalCTASection.tsx
-│   │   │   ├── LandingHeader.tsx
-│   │   │   ├── LanguageSelector.tsx
-│   │   │   ├── Footer.tsx
-│   │   │   └── index.ts              # Barrel export
-│   │   ├── layout/
-│   │   └── common/
-│   ├── hooks/
-│   │   └── useLanguage.ts            # Language switching hook
-│   ├── i18n/
-│   │   ├── config.ts                 # i18n configuration
-│   │   ├── middleware.ts             # Language routing middleware
-│   │   ├── locales/
-│   │   │   ├── en.json               # English translations
-│   │   │   ├── ur.json               # Urdu translations
-│   │   │   └── ur-roman.json         # Roman Urdu translations
-│   │   └── translate.ts              # Translation helper
-│   ├── types/
-│   │   └── landing.ts                # Landing page types
-│   └── styles/
-│       └── landing.css               # Landing-specific styles (if needed)
-├── public/
-│   ├── images/
-│   │   ├── hero-bg.png               # Hero background image
-│   │   ├── hero-bg.webp              # WebP format
-│   │   ├── feature-icons/
-│   │   │   ├── tasks.svg
-│   │   │   ├── calendar.svg
-│   │   │   └── ...
-│   │   ├── app-screenshots/
-│   │   │   ├── dashboard.png
-│   │   │   ├── task-list.png
-│   │   │   └── create-task-modal.png
-│   │   └── illustrations/
-│   │       └── ...
-│   └── ... (existing public assets)
-└── tests/
-    ├── landing/
-    │   ├── e2e/
-    │   │   ├── landing.spec.ts       # Playwright E2E tests
-    │   │   ├── conversion.spec.ts
-    │   │   └── accessibility.spec.ts
-    │   ├── component/
-    │   │   ├── HeroSection.test.tsx  # React Testing Library
-    │   │   ├── FeaturesSection.test.tsx
-    │   │   └── ...
-    │   └── unit/
-    │       └── useLanguage.test.ts
-    └── ... (existing tests)
-```
+**User Story**: Explore Features Section (US2)
+
+**Test Steps**:
+1. Navigate to landing page
+2. Scroll down from hero section
+3. Observe features section
+
+**Expected Results**:
+- ✅ 3-4 feature cards displayed in responsive grid
+- ✅ Each card has icon, title, and short description
+- ✅ Desktop: 4 columns (or 2x2 grid for 4 cards)
+- ✅ Tablet: 2 columns
+- ✅ Mobile: 1 column (stacked vertically)
+- ✅ Hover effects on cards (desktop only): elevation, border glow, or scale
+
+**Feature Card Content**:
+1. **Simple Task Management** - Icon: CheckCircle - "Add, edit, complete tasks effortlessly"
+2. **Smart Filtering** - Icon: Filter - "View all, pending, or completed tasks"
+3. **Secure & Private** - Icon: Lock - "Your tasks, your data, fully isolated"
+4. **Always Accessible** - Icon: Globe - "Works on any device, anywhere"
+
+**Acceptance Criteria**:
+- Cards have equal height in each row
+- Icons are 24px (1.5rem) size
+- Text is readable with sufficient contrast
+- Hover effects are smooth (0.3s transition)
 
 ---
 
-## Development Workflow
+### Scenario 4: CTA Buttons Navigate to Login
 
-### 1. Start Dev Server
+**User Story**: Click CTA and Navigate to Signup (US3)
 
-```bash
-cd frontend
+**Test Steps**:
+1. Navigate to landing page
+2. Click primary CTA button in hero section
+3. Verify redirect to `/login`
+4. Return to landing page
+5. Scroll to bottom
+6. Click final CTA button
+7. Verify redirect to `/login`
 
-# Start Next.js development server
-npm run dev
+**Expected Results**:
+- ✅ Hero CTA button redirects to `/login` page
+- ✅ Final CTA section displays centered text ("Ready to get organized?")
+- ✅ Final CTA button ("Get Started") redirects to `/login` page
+- ✅ Navigation occurs in under 3 seconds
+- ✅ CTA buttons show hover effects (color change, elevation, or scale)
 
-# App runs at http://localhost:3000
-# Landing page available at http://localhost:3000 (or http://localhost:3001 if port in use)
-```
-
-### 2. Create a Component
-
-**Example**: HeroSection.tsx
-
-```typescript
-// src/components/landing/HeroSection.tsx
-'use client';
-
-import { useTranslations } from 'next-intl';
-import Link from 'next/link';
-import Button from '@/components/common/Button';
-
-export default function HeroSection() {
-  const t = useTranslations('hero');
-
-  return (
-    <section className="py-20 px-4 md:py-40 bg-gradient-to-r from-blue-50 to-white">
-      <div className="container mx-auto max-w-4xl text-center">
-        <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-          {t('headline')}
-        </h1>
-        <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          {t('subheadline')}
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-          <Link href="/auth/signup">
-            <Button variant="primary" size="lg">
-              {t('cta')}
-            </Button>
-          </Link>
-        </div>
-        <p className="text-sm text-gray-500">{t('trustline')}</p>
-      </div>
-    </section>
-  );
-}
-```
-
-### 3. Add Translations
-
-**File**: `src/i18n/locales/en.json`
-
-```json
-{
-  "hero": {
-    "headline": "Manage Your Tasks with Ease",
-    "subheadline": "The simple, free todo app for students, freelancers, and teams",
-    "cta": "Get Started Free",
-    "trustline": "No credit card required"
-  },
-  "problem": {
-    "title": "Your Tasks Are All Over the Place",
-    "items": [
-      "Forgotten deadlines",
-      "Scattered tasks across multiple apps",
-      "Unclear priorities"
-    ]
-  }
-}
-```
-
-### 4. Hot Reload & Testing
-
-```bash
-# Edit a component and save
-# Next.js automatically reloads (Fast Refresh)
-
-# Run tests
-npm run test
-
-# Run E2E tests
-npm run test:e2e
-
-# Check accessibility
-npm run test:a11y
-```
+**Acceptance Criteria**:
+- Both CTA buttons use Next.js Link component (client-side navigation)
+- Buttons are visually prominent with high contrast
+- Buttons meet minimum touch target size (44x44px) on mobile
+- Hover states provide clear visual feedback
 
 ---
 
-## Key Commands
+### Scenario 5: Responsive Design Across Breakpoints
 
-```bash
-# Development
-npm run dev                    # Start dev server
-npm run build                  # Build for production
-npm run start                  # Start production server
-npm run lint                   # Run ESLint
-npm run format                 # Run Prettier (if configured)
+**User Story**: All user stories (responsive requirement)
 
-# Testing
-npm run test                   # Jest + React Testing Library
-npm run test:e2e               # Playwright E2E tests
-npm run test:a11y              # Accessibility audit (axe-core)
-npm run test:performance       # Lighthouse CI
+**Test Steps**:
+1. Open landing page in browser DevTools
+2. Test at mobile breakpoint (375px width)
+3. Test at tablet breakpoint (768px width)
+4. Test at desktop breakpoint (1280px width)
+5. Test at large desktop (1920px width)
 
-# Type checking
-npm run type-check             # TypeScript check
-```
+**Expected Results**:
 
----
+**Mobile (<768px)**:
+- ✅ Single column layout
+- ✅ Headline at top, phone mockup below (stacked)
+- ✅ Feature cards in single column
+- ✅ CTA buttons full-width or centered
+- ✅ Text remains readable (no horizontal scroll)
 
-## Component Development Checklist
+**Tablet (768-1024px)**:
+- ✅ Hero section may remain stacked or transition to two-column
+- ✅ Feature cards in 2-column grid
+- ✅ Generous spacing maintained
 
-For each section component, follow this checklist:
+**Desktop (>1024px)**:
+- ✅ Two-column hero (headline left, mockup right)
+- ✅ Feature cards in 4-column grid
+- ✅ Container max-width: 1280px with horizontal padding
+- ✅ Centered content with whitespace on sides
 
-- [ ] Create component file in `src/components/landing/`
-- [ ] Add TypeScript types in `src/types/landing.ts` (if needed)
-- [ ] Import translations using `useTranslations()` hook
-- [ ] Implement responsive design (mobile-first with Tailwind)
-- [ ] Add ARIA labels and semantic HTML
-- [ ] Test color contrast (4.5:1 for normal text)
-- [ ] Add unit tests in `tests/landing/component/`
-- [ ] Test on mobile (320px), tablet (768px), desktop (1024px+)
-- [ ] Test keyboard navigation (Tab, Enter)
-- [ ] Test with screen reader (NVDA/JAWS simulation)
-- [ ] Run Lighthouse audit
-- [ ] Commit with spec reference: `// [Task]: T-XXX, [From]: specs/003-landing-page/spec.md#FR-XXX`
+**Acceptance Criteria**:
+- No horizontal scrolling at any breakpoint
+- All content readable and accessible
+- Touch targets meet minimum size on mobile
+- Layout adapts smoothly between breakpoints
 
 ---
 
-## i18n (Internationalization) Setup
+### Scenario 6: Performance and Core Web Vitals
 
-### Configuration File
+**User Story**: All user stories (performance requirement)
 
-**File**: `src/i18n/config.ts`
+**Test Steps**:
+1. Open Chrome DevTools
+2. Navigate to Lighthouse tab
+3. Run Lighthouse audit (Desktop and Mobile)
+4. Review Core Web Vitals in Performance tab
 
-```typescript
-import { notFound } from 'next/navigation';
-import { getRequestConfig } from 'next-intl/server';
+**Expected Results**:
+- ✅ Page load time: <2 seconds
+- ✅ LCP (Largest Contentful Paint): <2.5s
+- ✅ FID (First Input Delay): <100ms
+- ✅ CLS (Cumulative Layout Shift): <0.1
+- ✅ Lighthouse Performance score: 90+
+- ✅ Lighthouse Accessibility score: 95+
+- ✅ Lighthouse SEO score: 100
 
-const locales = ['en', 'ur', 'ur-roman'];
-const defaultLocale = 'en';
-
-export const getConfig = async (locale: string) => {
-  if (!locales.includes(locale as any)) notFound();
-  return (await import(`./locales/${locale}.json`)).default;
-};
-
-export default getRequestConfig(async ({ locale }) => ({
-  messages: await getConfig(locale),
-}));
-```
-
-### Using Translations in Components
-
-```typescript
-'use client';
-
-import { useTranslations } from 'next-intl';
-
-export default function MyComponent() {
-  const t = useTranslations();
-
-  return (
-    <h1>{t('hero.headline')}</h1>  // Namespace.key syntax
-  );
-}
-```
+**Acceptance Criteria**:
+- All Core Web Vitals in "Good" range (green)
+- No render-blocking resources above the fold
+- Images optimized (WebP format, proper sizing)
+- Minimal JavaScript bundle size (<50KB)
 
 ---
 
-## Testing Strategy
+### Scenario 7: SEO and Metadata
 
-### Unit Tests (Jest + React Testing Library)
+**User Story**: All user stories (SEO requirement)
 
-```typescript
-// tests/landing/component/HeroSection.test.tsx
-import { render, screen } from '@testing-library/react';
-import HeroSection from '@/components/landing/HeroSection';
-import { IntlProvider } from 'next-intl';
+**Test Steps**:
+1. Navigate to landing page
+2. View page source (Ctrl+U or Cmd+U)
+3. Inspect <head> section
+4. Use browser extensions (e.g., SEO Meta in 1 Click)
 
-describe('HeroSection', () => {
-  it('renders headline with correct text', () => {
-    render(
-      <IntlProvider locale="en" messages={{}}>
-        <HeroSection />
-      </IntlProvider>
-    );
+**Expected Results**:
+- ✅ Title tag present and descriptive
+- ✅ Meta description present (150-160 characters)
+- ✅ Open Graph tags (og:title, og:description, og:image, og:url)
+- ✅ Twitter Card tags (twitter:card, twitter:title, twitter:description)
+- ✅ Canonical URL specified
+- ✅ Viewport meta tag present
+- ✅ Semantic HTML5 elements (<header>, <section>, <main>)
+- ✅ Alt text on all images
 
-    const headline = screen.getByRole('heading', { level: 1 });
-    expect(headline).toBeInTheDocument();
-  });
-
-  it('has accessible CTA button', () => {
-    render(<HeroSection />);
-    const button = screen.getByRole('link', { name: /get started/i });
-    expect(button).toHaveAttribute('href', '/auth/signup');
-  });
-});
-```
-
-### E2E Tests (Playwright)
-
-```typescript
-// tests/landing/e2e/landing.spec.ts
-import { test, expect } from '@playwright/test';
-
-test('visitor can navigate hero to signup', async ({ page }) => {
-  await page.goto('http://localhost:3000');
-
-  const cta = page.getByRole('link', { name: /get started/i });
-  await expect(cta).toBeVisible();
-
-  await cta.click();
-  await expect(page).toHaveURL('/auth/signup');
-});
-
-test('language selector works', async ({ page }) => {
-  await page.goto('http://localhost:3000');
-
-  const languageSelector = page.getByLabel('Language');
-  await languageSelector.selectOption('ur');
-
-  // Verify page reloaded with Urdu content
-  const headline = page.getByRole('heading', { level: 1 });
-  await expect(headline).toContainText(/مدیریت/); // Urdu text
-});
-```
-
-### Accessibility Testing
-
-```bash
-# Run axe-core accessibility audit
-npm run test:a11y
-
-# Check WCAG AA compliance
-# Expected: No violations, only warnings
-```
+**Acceptance Criteria**:
+- Lighthouse SEO score: 100
+- All meta tags properly formatted
+- Structured data (JSON-LD) for organization/website schema
+- No broken links or missing resources
 
 ---
 
-## Performance Monitoring
+### Scenario 8: Accessibility Testing
 
-### Lighthouse CI
+**User Story**: All user stories (accessibility requirement)
 
-```bash
-# Run Lighthouse audit locally
-npm run test:performance
+**Test Steps**:
+1. Navigate to landing page
+2. Use keyboard only (Tab, Enter, Shift+Tab)
+3. Test with screen reader (NVDA, JAWS, or VoiceOver)
+4. Run Lighthouse accessibility audit
+5. Check color contrast with browser tools
 
-# Expected scores:
-# - Performance: 90+
-# - SEO: 90+
-# - Accessibility: 90+
-# - Best Practices: 85+
-```
+**Expected Results**:
+- ✅ All interactive elements keyboard accessible
+- ✅ Focus indicators visible on all focusable elements
+- ✅ Screen reader announces all content correctly
+- ✅ Alt text on all images (phone mockup, feature icons)
+- ✅ Sufficient color contrast (WCAG AA: 4.5:1 for text, 3:1 for large text)
+- ✅ No accessibility violations in Lighthouse audit
+- ✅ Semantic HTML structure (headings hierarchy)
 
-### Core Web Vitals Targets
-
-Monitor these metrics:
-- **LCP** (Largest Contentful Paint): < 2.5s
-- **FID** (First Input Delay): < 100ms
-- **CLS** (Cumulative Layout Shift): < 0.1
-
----
-
-## Git Workflow
-
-### Committing Changes
-
-```bash
-# Each commit must reference spec and task ID
-git add src/components/landing/HeroSection.tsx
-git commit -m "Implement HeroSection component
-
-// [Task]: T-001, [From]: specs/003-landing-page/spec.md#FR-001"
-
-# Push to feature branch
-git push origin 003-landing-page
-```
-
-### Creating Pull Request
-
-When feature is complete:
-
-```bash
-# Push final commits
-git push origin 003-landing-page
-
-# Create PR to main
-gh pr create \
-  --title "Landing page implementation" \
-  --body "Implements full landing page with 10 sections, multilingual support, accessibility, and performance optimizations."
-```
+**Acceptance Criteria**:
+- Lighthouse Accessibility score: 95+
+- No ARIA violations
+- Keyboard navigation works for all interactive elements
+- Screen reader can navigate and understand all content
 
 ---
 
-## Common Tasks
+### Scenario 9: Cross-Browser Compatibility
 
-### Adding a New Language
+**User Story**: All user stories (browser compatibility requirement)
 
-1. Duplicate `src/i18n/locales/en.json` → `src/i18n/locales/[new-locale].json`
-2. Translate all keys
-3. Update `src/i18n/config.ts` locale list: `const locales = ['en', 'ur', 'ur-roman', '[new-locale]']`
-4. Test language switcher
-5. Run Lighthouse audit (check for missing translations)
+**Test Steps**:
+1. Test landing page in Chrome (latest)
+2. Test landing page in Firefox (latest)
+3. Test landing page in Safari (latest)
+4. Test landing page in Edge (latest)
 
-### Updating Landing Content
+**Expected Results**:
+- ✅ Layout renders correctly in all browsers
+- ✅ Animations work smoothly in all browsers
+- ✅ CTA buttons function correctly in all browsers
+- ✅ Phone mockup displays correctly in all browsers
+- ✅ No console errors in any browser
 
-1. Edit JSON files in `src/i18n/locales/`
-2. All translations update automatically on hot reload
-3. Commit with message referencing which sections changed
-
-### Adding a New Section
-
-1. Create component in `src/components/landing/[NewSection].tsx`
-2. Add translations to all JSON files
-3. Import and add to `src/app/(landing)/page.tsx`
-4. Add unit tests
-5. Verify responsive design at all breakpoints
-6. Run Lighthouse audit
+**Acceptance Criteria**:
+- Visual consistency across all major browsers
+- No browser-specific bugs or layout issues
+- Graceful degradation for older browsers (if applicable)
 
 ---
 
-## Debugging Tips
+### Scenario 10: Edge Cases
 
-### TypeScript Errors
+**Test Steps**:
+1. Access landing page while already authenticated (logged in)
+2. Test on very small screen (<320px width)
+3. Test with slow 3G connection (Chrome DevTools throttling)
+4. Test with JavaScript disabled
+5. Test with images disabled
 
-```bash
-npm run type-check
-# Shows all type errors; fix before committing
-```
+**Expected Results**:
 
-### Translation Missing Keys
+**Authenticated User**:
+- ✅ Landing page still displays (no automatic redirect)
+- ✅ CTA buttons still redirect to /login (or dashboard if logic added)
 
-```bash
-# Look for console warnings about missing translation keys
-# Usually shown in browser DevTools Console
-```
+**Very Small Screen (<320px)**:
+- ✅ Content remains readable (may require horizontal scroll)
+- ✅ Phone mockup scales down appropriately
 
-### Performance Bottlenecks
+**Slow 3G Connection**:
+- ✅ Page loads within acceptable time (may exceed 2s target)
+- ✅ Progressive loading (content appears incrementally)
+- ✅ No broken layout during loading
 
-```bash
-# Use Chrome DevTools Lighthouse tab
-# Or run: npm run test:performance
+**JavaScript Disabled**:
+- ✅ Static content displays correctly
+- ✅ CTA buttons still navigate (using <a> tags or Next.js Link)
+- ✅ No animations (graceful degradation)
 
-# Common issues:
-# - Large images (use Next.js Image component with responsive sizes)
-# - Unoptimized fonts (use next/font)
-# - Render blocking scripts (defer or async)
-```
-
-### Accessibility Issues
-
-```bash
-# Use Chrome DevTools Accessibility tree
-# Or screen reader (NVDA, JAWS, VoiceOver)
-
-# Common issues:
-# - Missing alt text on images
-# - Poor color contrast
-# - Missing form labels
-```
+**Images Disabled**:
+- ✅ Alt text displays for phone mockup
+- ✅ Layout remains intact (reserved space for images)
+- ✅ Feature icons may not display (acceptable)
 
 ---
 
-## Documentation & Resources
+## Quick Validation Checklist
 
-### Next.js References
-- [App Router Documentation](https://nextjs.org/docs/app)
-- [Image Optimization](https://nextjs.org/docs/app/building-your-application/optimizing/images)
-- [Metadata API](https://nextjs.org/docs/app/building-your-application/optimizing/metadata)
+Use this checklist for rapid validation during development:
 
-### i18n
-- [next-intl Documentation](https://next-intl-docs.vercel.app/)
-
-### Accessibility
-- [WCAG 2.1 Level AA](https://www.w3.org/WAI/WCAG21/quickref/)
-- [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
-
-### Testing
-- [Playwright Best Practices](https://playwright.dev/docs/best-practices)
-- [React Testing Library Queries](https://testing-library.com/docs/dom-testing-library/queries)
-
----
-
-## Deployment Checklist
-
-Before deploying landing page to production:
-
-- [ ] All tests passing (unit, component, E2E, accessibility)
-- [ ] Lighthouse scores 90+ for Performance, SEO, Accessibility
-- [ ] Mobile responsiveness tested on real devices (iPhone, Android)
-- [ ] All translations reviewed by native speakers
-- [ ] SEO meta tags verified (title, description, og:image)
-- [ ] Schema.org structured data validated
-- [ ] Links tested (no 404s, external links working)
-- [ ] Analytics script added (if applicable)
-- [ ] Redirects configured (if changing URL structure)
-- [ ] Performance monitoring enabled (Web Vitals, Lighthouse CI)
-- [ ] Commit messages reference specs and task IDs
-- [ ] PR reviewed and approved
-- [ ] Deployed to staging for final QA
-- [ ] Feature flag tested (if using feature flags)
-- [ ] Monitoring alerts configured
-- [ ] Rollback plan documented
+- [ ] Hero section loads above the fold
+- [ ] Headline and subheadline visible and readable
+- [ ] Phone mockup displays dashboard preview
+- [ ] Primary CTA button visible and functional
+- [ ] Features section displays 3-4 cards
+- [ ] Feature cards have icons, titles, descriptions
+- [ ] Final CTA section at bottom of page
+- [ ] All CTA buttons redirect to /login
+- [ ] Responsive design works (mobile, tablet, desktop)
+- [ ] Page loads in under 2 seconds
+- [ ] Core Web Vitals in "Good" range
+- [ ] Lighthouse Performance: 90+
+- [ ] Lighthouse Accessibility: 95+
+- [ ] Lighthouse SEO: 100
+- [ ] No console errors or warnings
+- [ ] Keyboard navigation works
+- [ ] Screen reader announces content correctly
+- [ ] Cross-browser compatibility verified
 
 ---
 
-## Support & Questions
+## Troubleshooting
 
-For implementation questions:
-1. Refer to spec.md for requirements
-2. Check plan.md for architecture decisions
-3. Search research.md for technical choices
-4. Review existing task UI components for patterns
-5. Ask on team Slack or create a discussion thread
+### Issue: Page loads slowly (>2s)
+**Solution**: Check image optimization, reduce bundle size, enable caching
 
-Next step: `/sp.tasks` to generate specific implementation tasks.
+### Issue: CLS (Layout Shift) too high
+**Solution**: Add explicit width/height to images, reserve space for content
+
+### Issue: CTA buttons not redirecting
+**Solution**: Verify Next.js Link component usage, check /login route exists
+
+### Issue: Phone mockup not displaying
+**Solution**: Check image path, verify Next.js Image component configuration
+
+### Issue: Feature cards not responsive
+**Solution**: Verify Tailwind grid classes, test breakpoints in DevTools
+
+---
+
+## Success Criteria Summary
+
+Landing page is ready for production when:
+- ✅ All 10 test scenarios pass
+- ✅ Quick validation checklist complete
+- ✅ Lighthouse scores meet targets (90+, 95+, 100)
+- ✅ Core Web Vitals in "Good" range
+- ✅ No accessibility violations
+- ✅ Cross-browser compatibility verified
+- ✅ Constitution compliance confirmed
