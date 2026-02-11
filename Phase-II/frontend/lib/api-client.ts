@@ -36,6 +36,9 @@ export async function apiClient<T = any>(
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`
 
+  // Debug: Log the full URL being fetched
+  console.log("Fetching:", url)
+
   // Get JWT token for authenticated requests
   const token = getAuthToken()
 
