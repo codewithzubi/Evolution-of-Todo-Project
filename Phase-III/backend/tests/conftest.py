@@ -1,287 +1,136 @@
-# [Task]: T017-T018, [From]: specs/001-task-crud-api/spec.md#Test-Infrastructure
-# [From]: specs/001-task-crud-api/plan.md#Phase-3-User-Story-1
-"""
-Pytest configuration and shared fixtures for task CRUD API tests.
+"""Pytest configuration and fixtures for backend testing.
 
-Provides:
+This module provides:
+- Test database setup with SQLModel
 - Database session fixtures
-- FastAPI TestClient
-- Authentication tokens
-- Test user and task fixtures
+- Test client fixtures for FastAPI
+- User authentication fixtures
 """
 
-import asyncio
 import os
-import sys
-import tempfile
-from collections.abc import AsyncGenerator
-from datetime import datetime, timedelta
-from pathlib import Path
-from uuid import UUID, uuid4
+
+# Set test environment variables BEFORE any imports
+os.environ["BETTER_AUTH_SECRET"] = "test-secret-key-minimum-32-characters-long-for-testing"
+os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+os.environ["FRONTEND_URL"] = "http://localhost:3000"
 
 import pytest
-import pytest_asyncio
-
-# CRITICAL: Set environment variables BEFORE importing any backend modules
-os.environ["JWT_SECRET"] = "test_secret_key"
-os.environ["BETTER_AUTH_SECRET"] = "test_secret"
-os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///:memory:"
-
-# Add backend to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
+from typing import Generator
+from sqlmodel import Session, SQLModel, create_engine
+from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
-from jose import jwt
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
-from sqlmodel import SQLModel
 
-from src.config import settings
-from src.main import app
-from src.database import engine
-
-
-def pytest_configure(config):
-    """Configure pytest to run async tests properly."""
-    config.option.asyncio_mode = "auto"
+from app.main import app
+from app.models.user import User
+from app.services.password_service import hash_password
+from app.services.jwt_service import create_token
+from app.config import get_settings
+from app.api.deps import get_session
 
 
-@pytest_asyncio.fixture(scope="function", autouse=True)
-async def setup_test_database():
-    """Create and cleanup test database tables for each test."""
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
-    yield
-    # Cleanup after each test
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.drop_all)
+# Test database URL (in-memory SQLite for fast tests)
+TEST_DATABASE_URL = "sqlite:///:memory:"
 
 
-@pytest.fixture(scope="function")
-def client():
-    """Create a FastAPI TestClient."""
-    # [Task]: T017-T018, [From]: specs/001-task-crud-api/spec.md#Test-Infrastructure
-    with TestClient(app) as test_client:
-        yield test_client
-
-
-@pytest_asyncio.fixture(scope="function")
-async def test_session() -> AsyncGenerator[AsyncSession, None]:
-    """Create a test database session using the global engine."""
-    async_session_factory = sessionmaker(
-        engine,
-        class_=AsyncSession,
-        expire_on_commit=False,
+@pytest.fixture(name="engine")
+def engine_fixture():
+    """Create a test database engine with in-memory SQLite."""
+    engine = create_engine(
+        TEST_DATABASE_URL,
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
     )
-    async with async_session_factory() as session:
+    SQLModel.metadata.create_all(engine)
+    yield engine
+    SQLModel.metadata.drop_all(engine)
+
+
+@pytest.fixture(name="session")
+def session_fixture(engine) -> Generator[Session, None, None]:
+    """Create a test database session."""
+    with Session(engine) as session:
         yield session
 
 
-@pytest.fixture
-def test_user_id() -> UUID:
-    """Generate a test user ID."""
-    return uuid4()
+@pytest.fixture(name="client")
+def client_fixture(session: Session) -> Generator[TestClient, None, None]:
+    """Create a test client for FastAPI with database session override."""
+
+    def get_session_override():
+        return session
+
+    # Override the database session dependency
+    app.dependency_overrides[get_session] = get_session_override
+
+    with TestClient(app) as test_client:
+        yield test_client
+
+    app.dependency_overrides.clear()
 
 
-@pytest.fixture
-def test_jwt_token(test_user_id: UUID) -> str:
-    """Generate a valid test JWT token."""
-    payload = {
-        "user_id": str(test_user_id),
-        "email": "test@example.com",
-        "iat": datetime.utcnow(),
-        "exp": datetime.utcnow() + timedelta(hours=24),
-    }
-    token = jwt.encode(
-        payload,
-        settings.jwt_secret,
-        algorithm=settings.jwt_algorithm,
-    )
-    return token
-
-
-@pytest.fixture
-def auth_headers(test_jwt_token: str) -> dict:
-    """Generate authorization headers with JWT token."""
-    return {"Authorization": f"Bearer {test_jwt_token}"}
-
-
-@pytest.fixture
-def other_user_id() -> UUID:
-    """Generate a different test user ID for isolation testing."""
-    return uuid4()
-
-
-@pytest.fixture
-def other_user_jwt_token(other_user_id: UUID) -> str:
-    """Generate a JWT token for a different user."""
-    payload = {
-        "user_id": str(other_user_id),
-        "email": "other@example.com",
-        "iat": datetime.utcnow(),
-        "exp": datetime.utcnow() + timedelta(hours=24),
-    }
-    token = jwt.encode(
-        payload,
-        settings.jwt_secret,
-        algorithm=settings.jwt_algorithm,
-    )
-    return token
-
-
-@pytest.fixture
-def other_user_auth_headers(other_user_jwt_token: str) -> dict:
-    """Generate authorization headers for different user."""
-    return {"Authorization": f"Bearer {other_user_jwt_token}"}
-
-
-@pytest.fixture
-def mismatched_auth_headers(other_user_jwt_token: str) -> dict:
-    """Generate authorization headers with mismatched user ID (for 403 tests)."""
-    return {"Authorization": f"Bearer {other_user_jwt_token}"}
-
-
-@pytest.fixture
-def invalid_auth_headers() -> dict:
-    """Generate authorization headers with invalid JWT token."""
-    return {"Authorization": "Bearer invalid.jwt.token"}
-
-
-# ============================================================================
-# Phase-III Chatbot Test Fixtures (T300-T306)
-# ============================================================================
-
-
-@pytest_asyncio.fixture
-async def test_user(test_session: AsyncSession, test_user_id: UUID):
-    """Create a test user in database.
-
-    [Task]: T366, [From]: specs/004-ai-chatbot/plan.md#Phase-1
-    Ensures user exists for foreign key constraints.
-    """
-    from src.models.base import User
-
+@pytest.fixture(name="test_user")
+def test_user_fixture(session: Session) -> User:
+    """Create a test user in the database."""
     user = User(
-        id=test_user_id,
         email="test@example.com",
-        name="Test User",
-        password_hash="hashed_password",
-        email_verified=True,
+        hashed_password=hash_password("password123"),
     )
-    test_session.add(user)
-    await test_session.commit()
-    await test_session.refresh(user)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
     return user
 
 
-@pytest_asyncio.fixture
-async def other_user(test_session: AsyncSession, other_user_id: UUID):
-    """Create another test user in database for isolation testing.
-
-    [Task]: T366, T370, [From]: specs/004-ai-chatbot/plan.md#Phase-1
-    """
-    from src.models.base import User
-
-    user = User(
-        id=other_user_id,
-        email="other@example.com",
-        name="Other User",
-        password_hash="hashed_password",
-        email_verified=True,
-    )
-    test_session.add(user)
-    await test_session.commit()
-    await test_session.refresh(user)
-    return user
-
-
-@pytest_asyncio.fixture
-async def conversation_factory(test_session: AsyncSession):
-    """Factory for creating test conversations.
-
-    [Task]: T305, [From]: specs/004-ai-chatbot/plan.md#Phase-1
-    """
-    from tests.fixtures.test_conversations import ConversationFactory
-
-    return ConversationFactory(session=test_session)
-
-
-@pytest_asyncio.fixture
-async def message_factory(test_session: AsyncSession):
-    """Factory for creating test messages.
-
-    [Task]: T305, [From]: specs/004-ai-chatbot/plan.md#Phase-1
-    """
-    from tests.fixtures.test_conversations import MessageFactory
-
-    return MessageFactory(session=test_session)
-
-
-@pytest_asyncio.fixture
-async def sample_conversation(test_session: AsyncSession, test_user):
-    """Create a sample active conversation for testing.
-
-    [Task]: T305, [From]: specs/004-ai-chatbot/plan.md#Phase-1
-    """
-    from tests.fixtures.test_conversations import ConversationFactory
-
-    factory = ConversationFactory()
-    conversation = factory.create(user_id=test_user.id, title="Test Conversation")
-    test_session.add(conversation)
-    await test_session.commit()
-    await test_session.refresh(conversation)
-    return conversation
-
-
-@pytest_asyncio.fixture
-async def sample_message(test_session: AsyncSession, test_user, sample_conversation):
-    """Create a sample message in a conversation for testing.
-
-    [Task]: T305, [From]: specs/004-ai-chatbot/plan.md#Phase-1
-    """
-    from tests.fixtures.test_conversations import MessageFactory
-    from src.models.message import MessageRole
-
-    factory = MessageFactory()
-    message = factory.create(
-        conversation_id=sample_conversation.id,
+@pytest.fixture(name="test_user_token")
+def test_user_token_fixture(test_user: User) -> str:
+    """Generate a JWT token for the test user."""
+    settings = get_settings()
+    return create_token(
         user_id=test_user.id,
-        role=MessageRole.USER,
-        content="Hello, can you help me?",
+        email=test_user.email,
+        secret_key=settings.BETTER_AUTH_SECRET,
     )
-    test_session.add(message)
-    await test_session.commit()
-    await test_session.refresh(message)
-    return message
 
 
-@pytest_asyncio.fixture
-async def user_a_conversation(test_session: AsyncSession, test_user):
-    """Create a conversation for User A.
-
-    [Task]: T303, T305, [From]: specs/004-ai-chatbot/spec.md#FR-017
-    """
-    from tests.fixtures.test_conversations import ConversationFactory
-
-    factory = ConversationFactory()
-    conversation = factory.create(user_id=test_user.id, title="User A's Conversation")
-    test_session.add(conversation)
-    await test_session.commit()
-    await test_session.refresh(conversation)
-    return conversation
+@pytest.fixture(name="auth_headers")
+def auth_headers_fixture(test_user_token: str) -> dict:
+    """Create authorization headers with JWT token."""
+    return {"Authorization": f"Bearer {test_user_token}"}
 
 
-@pytest_asyncio.fixture
-async def user_b_conversation(test_session: AsyncSession, other_user):
-    """Create a conversation for User B (different user for isolation testing).
+@pytest.fixture(name="second_user")
+def second_user_fixture(session: Session) -> User:
+    """Create a second test user for multi-user testing."""
+    user = User(
+        email="user2@example.com",
+        hashed_password=hash_password("password456"),
+    )
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
 
-    [Task]: T303, T305, [From]: specs/004-ai-chatbot/spec.md#FR-018, FR-019
-    """
-    from tests.fixtures.test_conversations import ConversationFactory
 
-    factory = ConversationFactory()
-    conversation = factory.create(user_id=other_user.id, title="User B's Conversation")
-    test_session.add(conversation)
-    await test_session.commit()
-    await test_session.refresh(conversation)
-    return conversation
+@pytest.fixture(name="second_user_token")
+def second_user_token_fixture(second_user: User) -> str:
+    """Generate a JWT token for the second test user."""
+    settings = get_settings()
+    return create_token(
+        user_id=second_user.id,
+        email=second_user.email,
+        secret_key=settings.BETTER_AUTH_SECRET,
+    )
+
+
+# Pytest configuration
+def pytest_configure(config):
+    """Configure pytest with custom markers."""
+    config.addinivalue_line(
+        "markers", "unit: mark test as a unit test"
+    )
+    config.addinivalue_line(
+        "markers", "integration: mark test as an integration test"
+    )
+    config.addinivalue_line(
+        "markers", "slow: mark test as slow running"
+    )

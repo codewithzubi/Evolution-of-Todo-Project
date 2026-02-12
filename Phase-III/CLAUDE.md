@@ -1,32 +1,8 @@
-# Claude Code Rules
+﻿# Claude Code Rules
+
+This file is generated during init for the selected agent.
 
 You are an expert AI assistant specializing in Spec-Driven Development (SDD). Your primary goal is to work with the architext to build products.
-
-## Project Overview
-
-**Objective:** Transform the console app into a modern multi-user web application with persistent storage using Claude Code and Spec-Kit Plus workflow.
-
-**Development Approach:** Agentic Dev Stack - Write spec → Generate plan → Break into tasks → Implement via Claude Code. All execution is agentic; no manual coding allowed.
-
-**Scope:** Implement all 5 Basic Level features as a responsive web application with RESTful APIs, persistent storage, and multi-user support.
-
-## Technology Stack
-
-| Layer | Technology | Agent |
-|-------|-----------|-------|
-| **Frontend** | Next.js 16+ (App Router) | Frontend Agent (`nextjs-ui-generator`) |
-| **Backend** | Python FastAPI | Backend Agent (`fastapi-backend`) |
-| **ORM** | SQLModel | DB Agent (`db-neon-sqlmodel`) |
-| **Database** | Neon Serverless PostgreSQL | DB Agent (`db-neon-sqlmodel`) |
-| **Authentication** | Better Auth + JWT | Auth Agent (`auth-security`) |
-| **Architecture** | Spec-Driven Development (SDD) | Claude Code + Spec-Kit Plus |
-
-## Agent Assignments & Responsibilities
-
-- **Frontend Agent** (`nextjs-ui-generator`): Builds responsive Next.js 16+ pages/components with App Router, Server Components, and Tailwind CSS.
-- **Backend Agent** (`fastapi-backend`): Creates FastAPI endpoints, request/response validation, middleware, and API authentication/authorization.
-- **DB Agent** (`db-neon-sqlmodel`): Designs SQLModel schemas, manages Neon PostgreSQL migrations, optimizes queries, handles relationships.
-- **Auth Agent** (`auth-security`): Implements Better Auth signup/signin, JWT token generation, session management, and route protection.
 
 ## Task context
 
@@ -220,31 +196,6 @@ If ALL true, suggest:
 
 Wait for consent; never auto-create ADRs. Group related decisions (stacks, authentication, deployment) into one ADR when appropriate.
 
-## API Design Patterns
-
-**RESTful Endpoint Structure:**
-- All endpoints require JWT authentication (except `/auth/signup` and `/auth/signin`)
-- User-scoped endpoints follow pattern: `/api/v1/users/{user_id}/resource`
-- Response format: `{ "data": {...}, "error": null }` or `{ "data": null, "error": "message" }`
-- Pagination: Use `?limit=10&offset=0` for list endpoints
-- Filtering: Use query parameters for resource filtering (e.g., `?status=active`)
-
-**Error Handling:**
-- 401: Unauthorized (missing/invalid JWT token)
-- 403: Forbidden (user doesn't own resource)
-- 404: Not Found
-- 422: Unprocessable Entity (validation error)
-- 500: Server Error (log with correlation ID)
-
-## Database Design Patterns
-
-**Multi-User Schema Considerations:**
-- All data tables include `user_id` foreign key (enforces row-level security)
-- Indexes on `(user_id, created_at)` for common queries
-- Soft deletes recommended for audit trails
-- Timestamps: `created_at`, `updated_at` on all tables
-- UUID primary keys for better distributed scaling
-
 ## Basic Project Structure
 
 - `.specify/memory/constitution.md` — Project principles
@@ -254,36 +205,40 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 - `history/prompts/` — Prompt History Records
 - `history/adr/` — Architecture Decision Records
 - `.specify/` — SpecKit Plus templates and scripts
-- `backend/` — FastAPI application (Python)
-- `frontend/` — Next.js application
-- `.env.example` — Environment variables template
-
-## Authentication & Authorization Flow
-
-**JWT Token-Based Multi-User Access:**
-
-1. **User Registration/Login** (Frontend → Auth Agent)
-   - Better Auth handles signup/signin via frontend form
-   - Issues JWT token on successful authentication
-   - Token stored securely in frontend (httpOnly cookie or secure storage)
-
-2. **API Request Flow** (Frontend → Backend)
-   - Frontend includes JWT token in `Authorization: Bearer <token>` header
-   - Backend receives request and extracts token from header
-   - Backend verifies token signature using shared secret key
-
-3. **User Identification & Authorization** (Backend)
-   - Decodes JWT to extract user ID, email, and claims
-   - Matches user ID with URL parameters or request body
-   - Applies row-level security: returns only data belonging to authenticated user
-   - Rejects requests where user ID in token doesn't match requested resource
-
-4. **Security Considerations**
-   - Never hardcode secrets; store JWT secret in `.env` file
-   - Use httpOnly cookies for token storage when possible
-   - Implement token refresh mechanism for expired tokens
-   - Always validate token signature before processing requests
-   - Enforce HTTPS in production
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+---
+
+# Phase II – Full-Stack Web Application (Added February 2026)
+
+## Current Phase
+Phase II: Modern Full-Stack Todo App with Authentication
+
+## Tech Stack (Locked)
+- Next.js 16.1.6 (App Router)
+- FastAPI 0.128+
+- Better Auth 1.4+ (JWT)
+- Neon Serverless PostgreSQL
+- shadcn/ui + Tailwind + Lucide Icons
+
+## How to Work Now (Phase II Rules)
+1. Always read @specs/overview.md first
+2. For any new feature: Read @specs/features/[feature-name].md
+3. To implement: "Implement @specs/features/xxx.md"
+4. Claude will automatically edit frontend/ and backend/ folders
+
+## UI Guidelines (Locked)
+- Dark mode default everywhere
+- Public Landing Page: Modern hero with phone mockup
+- Login/Signup: Centered card
+- Dashboard: Sidebar + task cards (shadcn/ui)
+- Task Card: Checkbox + title + description + status badge
+
+## Authentication Rules
+- Better Auth on frontend
+- JWT token verification on FastAPI backend
+- Every user can only see their own tasks
+
+Follow Constitution.md strictly. Spec-Driven Development only.

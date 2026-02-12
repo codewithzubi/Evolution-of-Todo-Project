@@ -1,307 +1,272 @@
-# Research & Technical Decisions: Landing Page
+# Research & Architectural Decisions: Public Landing Page
 
-**Phase**: Phase 0 - Research & Unknowns Resolution
-**Date**: 2026-02-04
-**Status**: ✅ COMPLETE (No unresolved clarifications)
+**Feature**: 003-landing-page
+**Date**: 2026-02-09
+**Status**: Phase 0 Complete
 
----
+## Overview
 
-## Executive Summary
+This document captures research findings and architectural decisions for implementing a high-performance, conversion-optimized landing page using Next.js 16.1.6 Server Components.
 
-All technical decisions for the landing page implementation have been made. No blocking research questions remain. The plan leverages existing project technologies (Next.js 16+, React 18, Tailwind CSS) with targeted additions (next-intl for i18n, Playwright for E2E testing).
+## Key Decisions
 
----
+### 1. Phone Mockup Implementation Strategy
 
-## Research Decisions
-
-### 1. Internationalization (i18n) Library
-
-**Decision**: `next-intl`
+**Decision**: Use CSS-only device frame with static image/screenshot for dashboard preview
 
 **Rationale**:
-- **Next.js native**: Built for Next.js 13+ App Router (perfect match for our setup)
-- **TypeScript support**: Full type safety for translation keys
-- **SSR/SSG compatible**: Works with Next.js static exports and server rendering
-- **Middleware support**: Can handle URL-based language routing (`/en`, `/ur`, `/ur-roman`)
-- **Simple setup**: Minimal configuration, straightforward JSON translation files
-- **Community**: Well-maintained, used by many SaaS companies
-- **Performance**: Negligible runtime overhead; translations pre-compiled
+- Performance: CSS device frame is lightweight (<5KB) vs SVG mockup libraries (50-100KB)
+- Flexibility: Easy to update dashboard screenshot without code changes
+- Core Web Vitals: Static image with proper optimization (WebP, lazy loading) ensures fast LCP
+- Maintenance: No external dependencies for device frame rendering
 
 **Alternatives Considered**:
-- **i18next**: More heavyweight, overkill for static landing page; better for larger apps with dynamic translations
-- **react-i18next**: Requires additional setup; not Next.js optimized
-- **Custom solution**: Would require maintaining own localization logic; reinventing the wheel
+- **Rejected: react-device-frameset library** - Adds 80KB bundle size, overkill for static mockup
+- **Rejected: Interactive iframe embed** - Violates performance constraints (<2s load time), adds complexity
+- **Rejected: Pure SVG device frame** - More complex to maintain, no significant benefit over CSS
 
 **Implementation Approach**:
-1. Install `next-intl` package
-2. Configure in `next.config.js`
-3. Create middleware for language routing
-4. Add translation JSON files for en, ur, ur-roman
-5. Wrap landing page with `useTranslations()` hook
+- CSS device frame with border-radius, box-shadow, and notch using pseudo-elements
+- Next.js Image component for dashboard screenshot (automatic WebP conversion, lazy loading)
+- Responsive scaling using CSS clamp() for fluid sizing across breakpoints
 
 ---
 
-### 2. Styling & Component Approach
+### 2. Animation Strategy
 
-**Decision**: Tailwind CSS (existing) + semantic HTML components
+**Decision**: CSS animations only (no JavaScript animation libraries)
 
 **Rationale**:
-- **Already in project**: No new dependency; consistent with existing codebase
-- **Mobile-first**: Built-in responsive design system
-- **Performance**: Minimal CSS output with PurgeCSS
-- **Developer experience**: Utility-first approach enables rapid prototyping
-- **Accessibility**: Works well with semantic HTML for screen readers
+- Performance: CSS animations are GPU-accelerated, don't block main thread
+- Bundle size: Zero JavaScript overhead (Framer Motion adds ~60KB)
+- Core Web Vitals: No layout shift (CLS), no interaction delay (FID)
+- Simplicity: Fade-in and slide-up animations achievable with pure CSS
 
 **Alternatives Considered**:
-- **Styled Components / Emotion**: CSS-in-JS solutions; add runtime overhead; unnecessary for static content
-- **Bootstrap**: Too opinionated; overkill for landing page
-- **Material-UI**: Over-engineered for this use case; conflicts with existing brand
-- **Custom CSS**: Duplicates work; maintenance burden
+- **Rejected: Framer Motion** - Excellent library but adds 60KB+ bundle size, overkill for simple fade-ins
+- **Rejected: GSAP** - Professional-grade but unnecessary for landing page animations
+- **Rejected: Intersection Observer + JS** - More complex than CSS, no benefit for simple animations
 
-**Component Patterns**:
-- Use existing button, card, heading components from task UI
-- Create landing-specific section wrappers (HeroSection, FeaturesSection, etc.)
-- Leverage Tailwind's responsive utilities for mobile/tablet/desktop
+**Implementation Approach**:
+- CSS `@keyframes` for fade-in and slide-up animations
+- `animation-delay` for staggered entrance effects
+- `prefers-reduced-motion` media query for accessibility
+- Tailwind CSS animation utilities where applicable
 
 ---
 
-### 3. SEO & Metadata Management
+### 3. Performance Optimization for Core Web Vitals
 
-**Decision**: Next.js `generateMetadata()` API + Schema.org structured data
+**Decision**: Multi-layered optimization strategy targeting Lighthouse 90+ scores
 
 **Rationale**:
-- **Next.js 13.2+**: Built-in metadata API (no external dependency)
-- **Dynamic per-page**: Can customize meta tags for each section if needed later
-- **Schema.org**: Industry standard for search engine understanding
-- **Future-proof**: Supports Open Graph, Twitter Cards, JSON-LD
+- Success criteria requires LCP <2.5s, FID <100ms, CLS <0.1
+- Next.js 16.1.6 provides built-in optimizations (Image component, font optimization)
+- Static page enables aggressive caching and CDN delivery
+
+**Optimization Techniques**:
+
+**LCP (Largest Contentful Paint) <2.5s**:
+- Hero headline uses system font stack (no web font download delay)
+- Phone mockup image: Next.js Image with priority flag, WebP format, proper sizing
+- Critical CSS inlined in <head>
+- No render-blocking resources above the fold
+
+**FID (First Input Delay) <100ms**:
+- Server Components by default (zero client-side JavaScript for static content)
+- CTA buttons use native <Link> (no JavaScript event handlers)
+- No heavy JavaScript libraries loaded
+
+**CLS (Cumulative Layout Shift) <0.1**:
+- Explicit width/height on all images (phone mockup, feature icons)
+- No dynamic content injection after initial render
+- Font loading with font-display: swap and size-adjust
+- Reserved space for all above-the-fold content
 
 **Alternatives Considered**:
-- **Next.js Head component**: Older approach; replaced by metadata API in Next.js 13+
-- **react-helmet**: Not recommended for Next.js 13+ App Router
-- **SEO libraries (Yoast, SemRush)**: Unnecessary for simple landing page
-
-**Structured Data**:
-- SoftwareApplication schema (for Google rich snippets)
-- Organization schema (for company branding)
-- Breadcrumb schema (if multi-level sections)
+- **Rejected: Client-side rendering** - Slower initial load, worse Core Web Vitals
+- **Rejected: Static Site Generation (SSG)** - Server Components provide same benefits with more flexibility
 
 ---
 
-### 4. Image Optimization
+### 4. SEO Optimization for Next.js App Router
 
-**Decision**: Next.js `<Image>` component + modern formats (WebP)
+**Decision**: Use Next.js 16.1.6 Metadata API with comprehensive meta tags
 
 **Rationale**:
-- **Automatic optimization**: AVIF/WebP with fallbacks, responsive srcsets
-- **Lazy loading**: Images below the fold don't load until visible
-- **Performance**: Reduces LCP, improves Core Web Vitals
-- **Built-in**: No external library needed
+- App Router provides type-safe metadata generation
+- Success criteria requires Lighthouse SEO score of 100
+- Proper meta tags improve social sharing and search visibility
+
+**Implementation Approach**:
+- Export `metadata` object from page.tsx with title, description, Open Graph tags
+- Semantic HTML5 elements (<header>, <section>, <main>)
+- Structured data (JSON-LD) for organization/website schema
+- Canonical URL, robots meta tag, viewport meta tag
+- Alt text on all images (phone mockup, feature icons)
 
 **Alternatives Considered**:
-- **Plain `<img>` tags**: Manual optimization; no lazy loading; slower
-- **Third-party service (Cloudinary)**: Over-engineered; adds external dependency and cost
-- **Manual srcsets**: Maintenance burden; error-prone
-
-**Image Sources**:
-- Hero background: High-quality illustration or solid color + gradient
-- Feature icons: SVG or small PNG (256x256)
-- App screenshots: PNG/JPG optimized to <100KB each
-- Logos: SVG for infinite scaling
+- **Rejected: react-helmet** - Not compatible with App Router, unnecessary
+- **Rejected: Manual <head> manipulation** - Metadata API is type-safe and recommended
 
 ---
 
-### 5. Testing Strategy
+### 5. Responsive Design Pattern for Hero Section
 
-**Decision**: Playwright (E2E) + React Testing Library (unit/component) + Lighthouse CI
+**Decision**: CSS Grid with mobile-first breakpoints (Tailwind responsive utilities)
 
 **Rationale**:
-- **Playwright**: Cross-browser E2E testing (Chrome, Firefox, Safari, Edge); excellent for conversion funnels
-- **React Testing Library**: Encourages testing user interactions, not implementation details
-- **Lighthouse CI**: Automated performance/SEO/accessibility audits on each build
-- **No flakiness**: All tools are stable and widely used
+- Spec requires: desktop (headline left, mockup right), mobile (stacked vertical)
+- CSS Grid provides clean two-column layout with automatic stacking
+- Tailwind breakpoints align with spec (mobile <768px, tablet 768-1024px, desktop >1024px)
+
+**Implementation Approach**:
+- Mobile: Single column, headline → CTA → phone mockup (vertical stack)
+- Tablet: Same as mobile or early transition to two-column
+- Desktop: Two-column grid (60/40 split), headline left, mockup right
+- Fluid typography using clamp() for headline sizing (48px-72px)
+- Container max-width: 1280px with horizontal padding
 
 **Alternatives Considered**:
-- **Cypress**: Good for E2E, but slower than Playwright; overkill for landing page
-- **Jest alone**: Only tests logic, not user interactions
-- **Manual testing**: Not scalable; misses regressions
-
-**Test Coverage**:
-- E2E: Hero CTA → signup flow, language switching, responsive behavior, accessibility
-- Component: Each section renders correctly, translations apply
-- Performance: Lighthouse scores maintained above thresholds
-- Accessibility: WCAG AA compliance (axe-core scanning)
+- **Rejected: Flexbox** - Grid is more semantic for two-dimensional layout
+- **Rejected: Absolute positioning** - Fragile, accessibility issues, hard to maintain
 
 ---
 
-### 6. Animation & Interactivity
+### 6. Feature Cards Layout Strategy
 
-**Decision**: CSS transitions (Tailwind) + optional Framer Motion for advanced animations (post-MVP)
+**Decision**: CSS Grid with responsive column count (4 → 2 → 1)
 
 **Rationale**:
-- **CSS transitions**: Zero JavaScript overhead; smooth, performant; sufficient for basic effects
-- **Framer Motion**: Optional library for scroll effects, parallax, complex animations (can add later)
-- **User preference**: Respect `prefers-reduced-motion` for accessibility
+- Spec requires: 4 columns desktop, 2 columns tablet, 1 column mobile
+- CSS Grid auto-fit/auto-fill provides automatic responsive behavior
+- Equal-height cards without JavaScript
+
+**Implementation Approach**:
+- Desktop: `grid-template-columns: repeat(4, 1fr)` or `repeat(auto-fit, minmax(250px, 1fr))`
+- Tablet: `md:grid-cols-2`
+- Mobile: `grid-cols-1` (default)
+- Gap: 24px (1.5rem) for visual breathing room
+- Card hover effects: CSS transform + box-shadow transition
 
 **Alternatives Considered**:
-- **GreenSock (GSAP)**: Powerful but overkill for landing page; adds 100KB to bundle
-- **Animate.css**: Library; not recommended for Next.js
-- **Heavy animations**: Risk of poor performance on mobile; violates performance budget
-
-**Animations (MVP)**:
-- Hover effects on buttons/cards (CSS)
-- Smooth scroll to sections (CSS scroll-behavior)
-- Fade-in sections on scroll (optional; Framer Motion if time permits)
+- **Rejected: Flexbox with flex-wrap** - Less predictable column behavior
+- **Rejected: Manual breakpoint management** - Grid auto-fit is more maintainable
 
 ---
 
-### 7. Accessibility Compliance
+### 7. Icon Strategy
 
-**Decision**: WCAG AA standard (Level AA) - no exceptions
+**Decision**: Lucide React icons imported individually (tree-shakeable)
 
 **Rationale**:
-- **Legal/ethical**: Ensures landing page is accessible to users with disabilities
-- **Business**: Expands addressable market; improves SEO (Google rewards accessibility)
-- **Spec requirement**: Landing page spec requires WCAG AA compliance
+- Constitution requires Lucide Icons for consistency
+- Individual imports ensure only used icons are bundled
+- React components integrate seamlessly with Next.js
 
-**Compliance Checklist**:
-- ✅ Color contrast 4.5:1 (normal), 3:1 (large text)
-- ✅ Keyboard navigation (no click-only interactions)
-- ✅ Semantic HTML (`<main>`, `<section>`, `<article>`, proper heading hierarchy)
-- ✅ ARIA labels for non-semantic elements
-- ✅ Alt text for all images
-- ✅ Form labels (`<label>` associated with inputs)
-- ✅ No time-dependent content
-- ✅ Respects `prefers-reduced-motion` media query
+**Implementation Approach**:
+- Import specific icons: `import { CheckCircle, Filter, Lock, Globe } from 'lucide-react'`
+- Feature cards: CheckCircle (Simple Task Management), Filter (Smart Filtering), Lock (Secure & Private), Globe (Always Accessible)
+- Icon size: 24px (1.5rem) for feature cards
+- Color: Accent color (blue/purple) or white depending on context
 
-**Testing Tools**:
-- axe-core (automated accessibility scanning)
-- NVDA/JAWS (screen reader manual testing)
-- Chrome DevTools Accessibility panel
-- WAVE Web Accessibility Evaluation Tool
+**Alternatives Considered**:
+- **Rejected: SVG sprite sheet** - More complex setup, no benefit over tree-shaking
+- **Rejected: Icon font** - Accessibility issues, flash of unstyled content
 
 ---
 
-### 8. Responsive Design & Mobile-First Approach
+### 8. Color Scheme & Design Tokens
 
-**Decision**: Mobile-first with Tailwind breakpoints (sm, md, lg, xl)
+**Decision**: Tailwind CSS custom theme extending default dark mode colors
 
 **Rationale**:
-- **Mobile majority**: 70%+ of web traffic is mobile; optimizing for mobile ensures good experience for majority
-- **Tailwind built-in**: Breakpoints are well-designed; no custom media queries needed
-- **Performance**: Progressive enhancement; mobile users get essential content first
-- **Spec requirement**: Landing page must work on 320px - 1920px
+- Spec requires dark mode with specific color palette
+- Tailwind provides excellent dark mode utilities
+- Custom theme ensures consistency across components
 
-**Breakpoints**:
-- Default (mobile): 320px - 639px
-- `sm`: 640px (tablets)
-- `md`: 768px (larger tablets)
-- `lg`: 1024px (desktops)
-- `xl`: 1280px (large desktops)
+**Color Palette**:
+- Background: `#0a0a0a` (zinc-950), `#171717` (neutral-900)
+- Text: `#ffffff` (white), `#fafafa` (neutral-50)
+- Accent: `#3b82f6` (blue-500) or `#8b5cf6` (purple-500) for CTA buttons
+- Gradient: `from-zinc-950 via-neutral-900 to-zinc-950` for hero background
 
-**Mobile Optimizations**:
-- Single-column layout on mobile
-- Touch-friendly button sizes (48px minimum)
-- Large text (16px minimum for readability)
-- Avoid horizontal scrolling
-- Prioritize above-the-fold content
+**Implementation Approach**:
+- Extend Tailwind config with custom colors if needed
+- Use semantic class names: `bg-background`, `text-foreground`, `text-accent`
+- shadcn/ui components already provide dark mode support
 
----
-
-### 9. Performance Budgets & Targets
-
-**Decision**: < 2 seconds load time, Lighthouse 90+ scores
-
-**Rationale**:
-- **User expectations**: 2-3 seconds is perceived as instant; >5s increases bounce rate
-- **SEO impact**: Core Web Vitals are Google ranking factors
-- **Spec requirement**: Landing page spec requires <2s load time
-
-**Performance Targets**:
-| Metric | Target | Justification |
-|--------|--------|---------------|
-| LCP (Largest Contentful Paint) | <2.5s | Hero content visible within 2.5s |
-| FID (First Input Delay) | <100ms | CTAs responsive to clicks |
-| CLS (Cumulative Layout Shift) | <0.1 | No layout jumps during load |
-| Page Size | <100KB (JS + CSS) | Fast on 4G networks |
-| Lighthouse Performance | 90+ | Industry best practice |
-| Lighthouse SEO | 90+ | Proper metadata, mobile-friendly |
-| Lighthouse Accessibility | 90+ | WCAG AA compliance |
-
-**Optimizations**:
-- Lazy load images below the fold
-- Code split sections (if needed)
-- Minify CSS/JS
-- Use modern image formats (WebP, AVIF)
-- Cache headers for static assets
-- CDN for image delivery
+**Alternatives Considered**:
+- **Rejected: CSS variables only** - Tailwind utilities provide better DX
+- **Rejected: Styled-components** - Adds runtime overhead, not needed for static page
 
 ---
 
-### 10. Multi-Language Translation Workflow
+## Technology Stack Summary
 
-**Decision**: Professional translation for Urdu and Roman Urdu; validate with native speakers
-
-**Rationale**:
-- **Quality**: Professional translators ensure culturally appropriate, idiomatic language
-- **Native speakers**: Validate translations for correctness and nuance
-- **Glossary**: Technical terms (e.g., "priority", "tags") translated consistently
-
-**Workflow**:
-1. Write master copy in English (clear, simple, concise)
-2. Translate to Urdu (Nastaliq/Naskh script) with professional translator
-3. Translate to Roman Urdu (Latin transliteration) with professional translator or community expert
-4. Validate with 2-3 native speakers
-5. Add translations to JSON files
-6. Commit to git with translation metadata
-
-**Common Pitfalls to Avoid**:
-- Literal word-for-word translation (leads to unnatural phrasing)
-- Using Google Translate without validation (can miss nuance, cultural context)
-- Inconsistent terminology (maintain glossary)
-- Not testing on RTL rendering (Urdu is RTL; need to validate layout)
+| Category | Technology | Version | Justification |
+|----------|-----------|---------|---------------|
+| Framework | Next.js | 16.1.6 | Constitution-locked, App Router for Server Components |
+| Styling | Tailwind CSS | Latest | Constitution-approved, utility-first responsive design |
+| Icons | Lucide React | Latest | Constitution-required, tree-shakeable React components |
+| Components | shadcn/ui | Latest | Constitution-approved, Button and Card components |
+| Typography | System font stack | N/A | Zero latency, excellent fallback (Inter/Geist if available) |
+| Images | Next.js Image | Built-in | Automatic optimization, WebP conversion, lazy loading |
+| Animations | CSS @keyframes | Native | Zero bundle size, GPU-accelerated, accessible |
+| Testing | Vitest + Playwright | Latest | Unit tests for components, E2E for navigation |
 
 ---
 
-### 11. Analytics & Tracking (Future, Post-MVP)
+## Performance Budget
 
-**Decision**: Optional Google Analytics; not required for MVP
-
-**Rationale**:
-- **Landing page MVP goal**: Drive signups; basic pageviews sufficient
-- **Can be added later**: GA is non-blocking; add after MVP launch if needed
-- **Privacy**: Minimize tracking on landing page; collect only what's needed
-
-**Metrics to Track (if GA added)**:
-- Sessions / Unique Visitors
-- CTA click-through rate (conversion funnel)
-- Time on page
-- Bounce rate
-- Language selection distribution
-- Device/browser breakdown
-
-**Implementation**: Google Tag Manager (GTM) for easier management; defer to post-MVP phase.
+| Metric | Target | Strategy |
+|--------|--------|----------|
+| Page Load Time | <2s | Server Components, optimized images, minimal JS |
+| LCP | <2.5s | Priority image loading, system fonts, critical CSS |
+| FID | <100ms | Minimal client-side JS, native browser interactions |
+| CLS | <0.1 | Explicit dimensions, no dynamic content injection |
+| Bundle Size (JS) | <50KB | Server Components, tree-shaking, no animation libraries |
+| Lighthouse Performance | 90+ | All optimizations combined |
+| Lighthouse Accessibility | 95+ | Semantic HTML, alt text, ARIA labels, keyboard nav |
+| Lighthouse SEO | 100 | Metadata API, structured data, semantic HTML |
 
 ---
 
-## Decision Matrix
+## Risk Mitigation
 
-| Decision | Choice | Confidence | Revisit Date |
-|----------|--------|-----------|--------------|
-| i18n Library | next-intl | 95% | Post-MVP if requirements change |
-| Styling | Tailwind CSS | 100% (existing) | N/A |
-| SEO | Next.js metadata API | 95% | Post-MVP if we add CMS |
-| Images | Next.js Image component | 95% | N/A |
-| Testing | Playwright + RTL + Lighthouse | 95% | N/A |
-| Animations | CSS + optional Framer Motion | 85% | Post-MVP |
-| Accessibility | WCAG AA | 100% (spec requirement) | N/A |
-| Responsive | Mobile-first, Tailwind | 100% | N/A |
-| Performance Target | <2s, Lighthouse 90+ | 90% | Post-MVP (may adjust based on metrics) |
-| Translations | Professional + native validation | 95% | N/A |
+### Risk 1: Phone Mockup Image Size Impacts LCP
+**Mitigation**:
+- Use Next.js Image with priority flag
+- Optimize source image to <100KB (WebP format)
+- Provide multiple sizes for responsive loading
+- Consider CSS-only mockup if image optimization insufficient
+
+### Risk 2: Animations Cause Layout Shift (CLS)
+**Mitigation**:
+- Use transform and opacity only (don't animate width/height/margin)
+- Reserve space for all content before animation starts
+- Test with Lighthouse CLS measurement
+
+### Risk 3: Feature Cards Not Accessible
+**Mitigation**:
+- Use semantic HTML (article, h3, p)
+- Ensure sufficient color contrast (WCAG AA)
+- Keyboard navigation for hover states
+- Screen reader testing
 
 ---
 
-## Conclusion
+## Open Questions
 
-All technical decisions are defensible, aligned with project principles, and leverage existing technologies. No blocking research questions remain. Ready to proceed with `/sp.tasks` to generate implementation tasks.
+None - all technical decisions resolved. Landing page is straightforward static implementation with well-established patterns.
 
-**Next**: `/sp.tasks` to break down feature into specific, testable tasks with dependencies and complexity estimates.
+---
+
+## Next Steps
+
+Proceed to Phase 1:
+1. ~~Generate data-model.md~~ (N/A - no database entities for static page)
+2. ~~Generate contracts/~~ (N/A - no API endpoints for frontend-only page)
+3. Generate quickstart.md (test scenarios for landing page)
+4. Update agent context (CLAUDE.md)
+5. Re-evaluate Constitution Check (expected: still PASS)
