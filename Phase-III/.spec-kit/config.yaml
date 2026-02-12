@@ -1,0 +1,19 @@
+name: hackathon-todo-phase2
+version: "2.0"
+spec_version: "1.0"
+
+structure:
+  specs_dir: specs
+  features_dir: specs/features
+  api_dir: specs/api
+  database_dir: specs/database
+  ui_dir: specs/ui
+
+phases:
+  - name: phase2-web
+    features:
+      - landing-page
+      - authentication
+      - task-crud
+
+default_model: claude-3-5-sonnet-latest
